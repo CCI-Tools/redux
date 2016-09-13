@@ -24,7 +24,7 @@ from typing import Callable, Any, Mapping, Type
 
 StateType = Any
 ActionType = Any
-VoidType = Any
+VoidType = None
 ReducerFunction = Callable[[StateType, ActionType], StateType]
 ListenerFunction = Callable[[StateType, StateType], VoidType]
 UnsubscribeFunction = Callable[[], VoidType]
@@ -49,7 +49,7 @@ class Store:
         """
         return self._state
 
-    def dispatch(self, action: ActionType):
+    def dispatch(self, action: ActionType) -> VoidType:
         """
         Dispatch an *action* to compute a new state from the old one using this store's reducer.
         Notifies subscribed listeners about the state change.
