@@ -1,6 +1,6 @@
-MIT License
+# The MIT License (MIT)
 
-Copyright (c) 2016 ESA CCI Toolbox
+Copyright &copy; 2016 by Norman Fomferra
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
