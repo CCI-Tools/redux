@@ -76,6 +76,32 @@ class ReduxTodoTest(unittest.TestCase):
         state = todo_app(state_before, action)
         self.assertEquals(state, state_after)
 
+    def test_set_visibility_filter_with_type(self, ):
+        class AppState:
+            def __init__(self, todos, visibility_filter):
+                self.todos = todos
+                self.visibility_filter = visibility_filter
+
+            # Provide '==' operator so we can do unit-testing
+            def __eq__(self, other):
+                try:
+                    return other.todos == self.todos and other.visibility_filter == self.visibility_filter
+                except AttributeError:
+                    return False
+
+        state_before = AppState([Todo(0, 'Learn Redux', False),
+                                 Todo(1, 'Go shopping', False)],
+                                'SHOW_ALL')
+        action = TodoAction('SET_VISIBILITY_FILTER', filter='SHOW_COMPLETED')
+        state_after = AppState([Todo(0, 'Learn Redux', False),
+                                Todo(1, 'Go shopping', False)],
+                               'SHOW_COMPLETED')
+
+        todo_app = combine_reducers(AppState, todos=todos, visibility_filter=visibility_filter)
+
+        state = todo_app(state_before, action)
+        self.assertEquals(state, state_after)
+
 
 CounterAction = namedtuple('CounterAction', ['type'], verbose=True)
 

@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+from collections import OrderedDict
 from typing import Callable, Any, Mapping, Type
 
 StateType = Any
@@ -95,22 +95,29 @@ def create_store(reducer: ReducerFunction) -> Store:
     return store
 
 
-def combine_reducers(new_state_type: Type = None, **reducers: Mapping[str, ReducerFunction]) -> ReducerFunction:
+def combine_reducers(_state_factory_: Type = None, **reducers: Mapping[str, ReducerFunction]) -> ReducerFunction:
     """
     Return a reducer function that takes two arguments *state*, *action* and returns a new state.
     The new state is computed from the individual reducer functions in the *reducers* dictionary.
-    If *new_state_type* is given, it's constructor will be called using names and values as keyword arguments.
-    Otherwise a new dictionary will be returned.
 
-    :param new_state_type: the return type of instances returned by the returned reducer function
+    If *state_factory* is given, it is expected to be a callable of the form ``state_factory(**kwargs)``.
+    It will be called with *kwargs* being the dictionary resulting from calling individual reducers in
+    *reducers*. If *state_factory* is given, all keys in *reducers* are expected to be writable
+    attributes / properties of the *state* passed into the combined reducer function.
+
+    If *state_factory* is ``None``, the combined reducer function will generate an ordered dictionary
+    and *state* is expected to be a subscriptable object (e.g. ``dict``, ``OrderedDict``) whose keys
+    will be set from the keys in *reducers*.
+
+    :param _state_factory_: a factory for new state instances
     :param reducers: mapping from names to reducer functions.
-    :return: a new reducer function that combines the given *reducers*
+    :return: a new reducer function that combines the results of given *reducers*
     """
-    if new_state_type is None:
+    if _state_factory_ is None:
         def reduce(state, action):
-            return {name: reducer(state[name], action) for name, reducer in reducers.items()}
+            return OrderedDict([(name, reducer(state[name], action)) for name, reducer in reducers.items()])
     else:
         def reduce(state, action):
-            kwargs = {name: reducer(state[name], action) for name, reducer in reducers.items()}
-            return new_state_type(**kwargs)
+            kwargs = OrderedDict([(name, reducer(getattr(state, name), action)) for name, reducer in reducers.items()])
+            return _state_factory_(**kwargs)
     return reduce
