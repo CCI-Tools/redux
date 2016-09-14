@@ -76,7 +76,7 @@ class ReduxTodoTest(unittest.TestCase):
         state = todo_app(state_before, action)
         self.assertEquals(state, state_after)
 
-    def test_set_visibility_filter_with_type(self, ):
+    def test_set_visibility_filter_with_state_factory(self, ):
         class AppState:
             def __init__(self, todos, visibility_filter):
                 self.todos = todos
